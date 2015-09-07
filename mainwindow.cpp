@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     test = new ff0x::RoundDial ( this );
     test->setObjectName( QStringLiteral("RoundDial") );
     {
-        test->SetAngles( -120, 120 );
+        test->SetAngle( 210 );
         test->SetRange( -100, 100 );
         test->SetStep( 1 );
         ff0x::RoundDial::RangeList green_zone;
@@ -29,13 +29,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
         test->EnableSaffetyRanges();
     }
-
     ui->widget->layout()->addWidget( test );
+
 
     test2 = new ff0x::RoundDial ( this );
     test2->setObjectName( QStringLiteral("RoundDial2") );
     {
-        test2->SetAngles( -120, 120 );
+        test2->SetAngle( 210 );
         test2->SetRange( -1000, 1000 );
         test2->SetStep( 50 );
         ff0x::RoundDial::RangeList green_zone;

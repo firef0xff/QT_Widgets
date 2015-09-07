@@ -3,19 +3,14 @@
 #include <QTimer>
 #include <QTime>
 #include <QTextItem>
+#include <math.h>
+
+#ifndef M_PI
+#define M_PI		3.14159265358979323846
+#endif
 
 namespace ff0x
 {
-
-namespace
-{
-
-enum : int
-{
-    DEF_DIAMETER = 250
-};
-
-}//namespace
 
 RoundDial::RoundDial(QWidget *parent) :
     QWidget(parent),
@@ -36,8 +31,12 @@ RoundDial::~RoundDial()
 
 void RoundDial::paintEvent( QPaintEvent* /*e */)
 {
-    int side = qMin(width(), height());
-    int radius = side / 2;
+    auto radius = height() / ( sin( (mMaxAngle +10 - 90.0)/180*M_PI ) + 1 );
+    radius = qMin( width()/2.0, radius );
+
+    auto hord_height = sin( (mMaxAngle +10 - 90.0)/180*M_PI ) * radius;
+    auto w = 2 * radius;
+    auto h = radius + hord_height;
     const QPoint center( 0, 0 );
     const QPoint nubmer_point( 0, -(radius - radius*0.11) );
     const QPoint arrow[4] = {
@@ -49,32 +48,46 @@ void RoundDial::paintEvent( QPaintEvent* /*e */)
 
     const QPoint lile_risk[2] = {
         QPoint( 0, -(radius - radius*0.01) ),
-        QPoint( 0, -(radius - radius*0.05) )
+        QPoint( 0, -(radius - radius*0.04) )
+    };
+    const QPoint mid_risk[2] = {
+        QPoint( 0, -(radius - radius*0.01) ),
+        QPoint( 0, -(radius - radius*0.07) )
     };
     const QPoint big_risk[2] = {
         QPoint( 0, -(radius - radius*0.01) ),
         QPoint( 0, -(radius - radius*0.09) )
     };
 
-    QFont text_font = font();
-    text_font.setPointSize( 6 * side/DEF_DIAMETER );
-
     static QColor arrow_body_color( 0x00, 0x00, 0x00 );//( 0x00, 0xff, 0x00 );
     static QColor arrow_border_color( 0xff, 0x66, 0x66 );
 
-    QPoint window_center(  width() / 2, height() / 2 );
+    //QPoint window_center( radius,  radius );
+    QPoint window_center(  qMax( static_cast<double>( width()/2 ), radius),  qMax( static_cast<double>( height()/2 ), radius) );
+    auto border = QRectF( -radius, -radius, w, w );
 
     QPainter painter( this );
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.translate ( window_center );
 
-    painter.setFont( text_font );
+    //painter.drawRect(rect());
+    painter.translate ( window_center );
+    //painter.drawRect(border);
+
+    painter.setFont( font() );
     painter.setPen( Qt::SolidLine );
+    QFontMetrics metrix( font() );
 
     //рисуем окружность
-    painter.save();
-    painter.drawEllipse( center, radius, radius );
-    painter.restore();
+    {
+        painter.save();
+        auto angle = qMax( qAbs(mMinAngle), qAbs(mMaxAngle) ) + 10;
+
+        if ( angle > 180 )
+            angle -= 10;
+
+        painter.drawChord( border, (90-angle) * 16,  2 * angle *16 );
+        painter.restore();
+    }
 
 
     qreal step = ( mMaxAngle - mMinAngle )/ (mMax - mMin) * mStep;
@@ -87,17 +100,12 @@ void RoundDial::paintEvent( QPaintEvent* /*e */)
             foreach (auto zone, range)
             {
                 painter.save();
-                painter.rotate( -90 );
-
                 auto start_angle = mMinAngle + ( qMax( zone.x(), mMin )  - mMin ) * step / mStep;
-                auto stop_angle = mMinAngle + ( qMax( zone.y(), mMin )  - mMin ) * step / mStep;
-
-
-                auto res = QRect( -radius, -radius, side, side );
+                auto stop_angle = mMinAngle + ( qMax( zone.y(), mMin )  - mMin ) * step / mStep;                
 
                 painter.setPen( Qt::NoPen );
                 painter.setBrush( color );
-                painter.drawPie( res, start_angle*16, (stop_angle - start_angle)*16 );
+                painter.drawPie( border, (start_angle+90)*16, (stop_angle - start_angle)*16 );
 
                 painter.restore();
             }
@@ -116,78 +124,75 @@ void RoundDial::paintEvent( QPaintEvent* /*e */)
 
         qint32 ofset = ceil( round( ( ( angle - mMinAngle ) / step ) * 100 ) / 100 );
 
-        if ( ofset % 5 != 0 )
-            painter.drawLine( lile_risk[0], lile_risk[1] );
-        else
+        if ( !( ofset % 10 ) )
             painter.drawLine( big_risk[0], big_risk[1] );
+        else if ( !( ofset % 5 ) )
+            painter.drawLine( mid_risk[0], mid_risk[1] );
+        else
+            painter.drawLine( lile_risk[0], lile_risk[1] );
 
         if ( !( ofset % 10 ) )
         {
             painter.translate( nubmer_point );
-            painter.rotate( 90 );
             QString text = QString::number( mMin + ofset * mStep );
-            painter.drawText( 0, 0, text );
-            painter.rotate( -90 );
+
+//            painter.rotate( 90 );
+
+//            int x = 0;
+//            int y = 0;
+
+            int x = -metrix.width( text )/2;
+            int y = metrix.height()/2;
+
+            painter.drawText( x, y, text );
         }
         //рисуем значение
         painter.restore();
     }
 
 
-    painter.setPen( arrow_border_color );
-    painter.setBrush( arrow_body_color );
     //рисуем стрелку
-    painter.save();
-
-    qreal pos = mValue - mMin;
-    painter.rotate( mMinAngle + pos * step / mStep  );
-    painter.drawConvexPolygon( arrow, 4 );
-    painter.restore();
-
-
-
-    /*QColor minuteColor(0, 127, 127, 191);
-
-    int side = qMin(width(), height());
-    QTime time = QTime::currentTime();
-
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.translate(width() / 2, height() / 2);
-    painter.scale(side / 200.0, side / 200.0);
-
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(hourColor);
-
-    painter.save();
-    painter.rotate(30.0 * ((time.hour() + time.minute() / 60.0)));
-    painter.drawConvexPolygon(hourHand, 3);
-    painter.restore();
-
-    painter.setPen(hourColor);
-
-    for (int i = 0; i < 12; ++i)
     {
-        painter.drawLine(88, 0, 96, 0);
-        painter.rotate(30.0);
+        painter.save();
+        painter.setPen( arrow_border_color );
+        painter.setBrush( arrow_body_color );
+
+        qreal pos = mValue - mMin;
+        painter.rotate( mMinAngle + pos * step / mStep  );
+        painter.drawConvexPolygon( arrow, 4 );
+        painter.restore();
     }
 
 
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(minuteColor);
+    //пишем цену деления и еденици измерения
+    {
+        QString text = QString::number( mValue, 'g', 6 ) + " " + mUnits;
+        auto width = metrix.width( text );
+        auto max_height = hord_height;
 
-    painter.save();
-    painter.rotate(6.0 * (time.minute() + time.second() / 60.0));
-    painter.drawConvexPolygon(minuteHand, 3);
-    painter.restore();
+        painter.drawText( -width/2, max_height - 3, text );
+    }
 
-    for (int j = 0; j < 60; ++j) {
-        if ((j % 5) != 0)
-            painter.drawLine(92, 0, 96, 0);
-        painter.rotate(6.0);
-    }*/
+    //пишем текущее значение
+    {
+        QString text = "Ц.д. " + QString::number( mStep, 'g', 6 ) + " " + mUnits;
+        auto width = metrix.width( text );
+        auto max_height = hord_height;
+
+        painter.drawText( -width/2, max_height - 3 - metrix.height() - 3, text );
+    }
+
 }
 
+
+QString RoundDial::Units()
+{
+    return mUnits;
+}
+void RoundDial::SetUnits( QString const& u )
+{
+    mUnits = u;
+}
 
 void RoundDial::SetRange( qreal min, qreal max )
 {
@@ -196,10 +201,11 @@ void RoundDial::SetRange( qreal min, qreal max )
 
     update_value( mValue );
 }
-void RoundDial::SetAngles( qreal min, qreal max )
+void RoundDial::SetAngle( qreal angle )
 {
-    mMinAngle = min;
-    mMaxAngle = max;
+    angle = qMax ( angle, 200.0 );
+    mMinAngle = -angle / 2;
+    mMaxAngle = angle / 2;
 
     update_value( mValue );
 }

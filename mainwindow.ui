@@ -45,6 +45,14 @@
      <height>26</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu123123">
+    <property name="title">
+     <string>123123</string>
+    </property>
+    <addaction name="action123123"/>
+    <addaction name="action12312"/>
+   </widget>
+   <addaction name="menu123123"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -53,8 +61,30 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action12312"/>
+   <addaction name="action123123"/>
+   <addaction name="separator"/>
+   <addaction name="qw123123"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="action123123">
+   <property name="text">
+    <string>ghjkghjghj</string>
+   </property>
+  </action>
+  <action name="action12312">
+   <property name="text">
+    <string>asdasdasd</string>
+   </property>
+  </action>
+  <action name="qw123123">
+   <property name="text">
+    <string>123123</string>
+   </property>
+   <property name="toolTip">
+    <string>www</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

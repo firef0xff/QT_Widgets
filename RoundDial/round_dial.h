@@ -14,7 +14,7 @@ public:
     ~RoundDial();
 
     void SetRange( qreal min, qreal max );
-    void SetAngles( qreal min, qreal max );
+    void SetAngle( qreal angle = 200 );
 
     void SetStep( qreal step );
 
@@ -31,6 +31,8 @@ public:
     void SetYellowRanges( RangeList const& ranges );
     void SetRedRanges( RangeList const& ranges );
 
+    QString Units();
+    void SetUnits( QString const& u );
 public slots:
     void update_value( qreal val );
 
@@ -41,6 +43,7 @@ protected:
     qreal mMax; //максимальное значение
     qreal mValue; //текущее значение
     qreal mStep; // цена деления
+    QString mUnits; //еденицы измерения
 
     qreal mMinAngle; //минимальный угол на табло
     qreal mMaxAngle; //максимальный угол на табло

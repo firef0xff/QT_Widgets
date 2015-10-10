@@ -36,7 +36,7 @@ void RoundDial::paintEvent( QPaintEvent* /*e */)
 
     auto hord_height = sin( (mMaxAngle +10 - 90.0)/180*M_PI ) * radius;
     auto w = 2 * radius;
-    auto h = radius + hord_height;
+    //auto h = radius + hord_height;
     const QPoint center( 0, 0 );
     const QPoint nubmer_point( 0, -(radius - radius*0.11) );
     const QPoint arrow[4] = {

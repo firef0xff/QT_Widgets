@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "GraphBuilder/graph_builder.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -54,7 +55,31 @@ MainWindow::MainWindow(QWidget *parent) :
         test2->EnableSaffetyRanges();
     }
 
-    ui->widget->layout()->addWidget( test2 );}
+    ui->widget->layout()->addWidget( test2 );
+
+    ff0x::GraphBuilder build( 840, 480 );
+    ff0x::GraphBuilder::GraphDataType data;
+    data.push_back( QPoint( -90, 90 ) );
+    data.push_back( QPoint( -80, 90 ) );
+    data.push_back( QPoint( -80, 80 ) );
+    data.push_back( QPoint( -70, 80 ) );
+    data.push_back( QPoint( -70, 70 ) );
+    data.push_back( QPoint( -60, 70 ) );
+    data.push_back( QPoint( -60, 60 ) );
+    data.push_back( QPoint( -50, 60 ) );
+    data.push_back( QPoint( -50, 50 ) );
+    data.push_back( QPoint( -40, 50 ) );
+    data.push_back( QPoint( -40, 40 ) );
+    data.push_back( QPoint( -30, 40 ) );
+    data.push_back( QPoint( -30, 30 ) );
+    data.push_back( QPoint( -20, 30 ) );
+    data.push_back( QPoint( -20, 20 ) );
+    data.push_back( QPoint( -10, 20 ) );
+    data.push_back( QPoint( -10, 10 ) );
+    data.push_back( QPoint( 0, 0 ) );
+    auto pixmap = build.Draw( data, 200, 100, 20, 20, "Бар.", "Шт." ,true );
+    pixmap.save( "img.png", "PNG" );
+}
 
 MainWindow::~MainWindow()
 {

@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    RoundDial/round_dial.cpp
+    RoundDial/round_dial.cpp \
+    GraphBuilder/graph_builder.cpp
 
 HEADERS  += mainwindow.h \
-    RoundDial/round_dial.h
+    RoundDial/round_dial.h \
+    GraphBuilder/graph_builder.h
 
 FORMS    += mainwindow.ui

@@ -15,8 +15,22 @@ public:
         BottomHalf,
         Full,
     };
+    struct LabelInfo
+    {
+        LabelInfo():
+            mName( "" ),
+            mColor( Qt::black )
+        {}
+        LabelInfo( QString name, Qt::GlobalColor color ):
+            mName( name ),
+            mColor( color )
+        {}
+
+        QString mName;
+        Qt::GlobalColor mColor;
+    };
     typedef QVector< QPointF > LinePoints;
-    typedef std::pair< LinePoints, Qt::GlobalColor > Line;
+    typedef std::pair< LinePoints, LabelInfo > Line;
     typedef QVector< Line > GraphDataLine;
     GraphBuilder( int width, int height, Mode mode, QFont font = QFont() );
 

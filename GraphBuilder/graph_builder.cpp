@@ -36,10 +36,12 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
     if ( mMode == PlusPlus )
         x_pos = ( metrix.width("12345") * 2 );
 
+    int legend_y_ofset = 5;
     int width = mWidth - 2;
     int height = mHeight - 2;
     int x_dist = width - x_pos;
-    int y_dist = height - ( height - y_pos );
+    int legend_start_point = -(height - ( height - y_pos ) - legend_y_ofset  ) ;
+    int y_dist = -legend_start_point - metrix.height() * data.size() ;
 
     // нарисовать рамку
     QRect border( 0, 0, mWidth - 1, mHeight - 1 );
@@ -183,10 +185,21 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
         painter.restore();
     }
 
+    int legend_width = 0;
+    int leged_height = 0;
     //нарисовать точки
     foreach (Line const& line, data)
     {
-        painter.setPen( line.second );
+        int l_width = metrix.width(line.second.mName);
+        QRect t( x_dist/100*25, legend_start_point - leged_height, l_width , metrix.height() );
+        painter.drawText( t, line.second.mName );
+        legend_width = std::max( legend_width, l_width );
+
+        leged_height += metrix.height();
+        painter.setPen( line.second.mColor );
+
+        painter.drawLine( 0, t.center().y(), x_dist/100*20, t.center().y() );
+
         QPointF const* prevPoint = nullptr;
         foreach (QPointF const& p, line.first)
         {
@@ -212,6 +225,9 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
             prevPoint = &p;
         }
     }
+
+    //нарисовать легенду
+
 
     return picture;
 }

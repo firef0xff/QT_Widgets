@@ -4,7 +4,8 @@
 namespace ff0x
 {
 
-GraphBuilder::GraphBuilder( int width, int height, QFont font ):
+GraphBuilder::GraphBuilder(int width, int height, Mode mode, QFont font ):
+    mMode( mode ),
     mWidth( width ),
     mHeight( height ),
     mFont( font )
@@ -25,10 +26,20 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
     QFontMetrics metrix( painter.font() );
 //    painter.setRenderHint(QPainter::Antialiasing);
 
-    int x_dist = mWidth/2 - 1;
-    int y_dist = mHeight/2 - 1;
-    int width = x_dist * 2;
-    int height = y_dist * 2;
+    int x_pos = mWidth/2 - 1;
+    int y_pos = mHeight/2 - 1;
+
+    if ( mMode == TopHalf || mMode == PlusPlus)
+        y_pos = mHeight - ( metrix.height() * 2 );
+    if ( mMode == BottomHalf )
+        y_pos = ( metrix.height() * 2 );
+    if ( mMode == PlusPlus )
+        x_pos = ( metrix.width("12345") * 2 );
+
+    int width = mWidth - 2;
+    int height = mHeight - 2;
+    int x_dist = width - x_pos;
+    int y_dist = height - ( height - y_pos );
 
     // нарисовать рамку
     QRect border( 0, 0, mWidth - 1, mHeight - 1 );
@@ -36,7 +47,7 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
     painter.drawRect( border );
 
     // переместить рисовальщик в центр изображения
-    QPoint window_center ( x_dist, y_dist );
+    QPoint window_center ( x_pos, y_pos );
     painter.setPen( Qt::black );
     painter.setPen( Qt::SolidLine );
     painter.translate ( window_center );
@@ -70,6 +81,10 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
             {
                 st_y = -y_dist;
                 sp_y = y_dist;
+                if ( mMode == PlusPlus )
+                {
+                    sp_y = 0;
+                }
             }
             // положительный диапазон
             {
@@ -88,6 +103,7 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
                 }
             }
             // отрицательный диапазон
+            if ( mMode != PlusPlus )
             {
                 qreal pos = 0 - x_step;
                 QPointF start( pos * x_skale, st_y ), stop( start.x(), sp_y );
@@ -117,6 +133,10 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
             else
             {
                 st_x = -x_dist;
+                if ( mMode == TopHalf || mMode == PlusPlus )
+                {
+                    st_x = 0;
+                }
                 sp_x = x_dist;
             }
             // положительный диапазон
@@ -136,6 +156,7 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
                 }
             }
             // отрицательный диапазон
+            if ( mMode == TopHalf || mMode == PlusPlus )
             {
                 qreal pos = 0 - y_step;
                 QPointF start( st_x, pos * y_skale ), stop( sp_x, start.y() );

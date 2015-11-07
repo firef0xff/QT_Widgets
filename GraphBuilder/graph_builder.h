@@ -8,10 +8,17 @@ namespace ff0x
 class GraphBuilder
 {
 public:
+    enum Mode
+    {
+        PlusPlus,
+        TopHalf,
+        BottomHalf,
+        Full,
+    };
     typedef QVector< QPointF > LinePoints;
     typedef std::pair< LinePoints, Qt::GlobalColor > Line;
     typedef QVector< Line > GraphDataLine;
-    GraphBuilder( int width, int height, QFont font = QFont() );
+    GraphBuilder( int width, int height, Mode mode, QFont font = QFont() );
 
 
     QPixmap Draw(GraphDataLine const& data,
@@ -23,6 +30,7 @@ public:
                   QString y_label,
                   bool draw_greed = false ) const;
 private:
+    Mode mMode;
     int mWidth;
     int mHeight;
     QFont mFont;

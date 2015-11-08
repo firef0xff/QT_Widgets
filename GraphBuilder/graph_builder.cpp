@@ -191,7 +191,9 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
     foreach (Line const& line, data)
     {
         int l_width = metrix.width(line.second.mName);
-        QRect t( x_dist/100*25, legend_start_point - leged_height, l_width , metrix.height() );
+        QRect t( x_dist/100*25, legend_start_point + leged_height, l_width , metrix.height() );
+
+        painter.setPen( Qt::black );
         painter.drawText( t, line.second.mName );
         legend_width = std::max( legend_width, l_width );
 

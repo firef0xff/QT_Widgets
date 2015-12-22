@@ -100,8 +100,8 @@ void RoundDial::paintEvent( QPaintEvent* /*e */)
             foreach (auto zone, range)
             {
                 painter.save();
-                auto start_angle = mMinAngle + ( qMax( zone.x(), mMin )  - mMin ) * step / mStep;
-                auto stop_angle = mMinAngle + ( qMax( zone.y(), mMin )  - mMin ) * step / mStep;                
+                auto start_angle = mMaxAngle - ( qMax( zone.x(), mMin )  - mMin ) * step / mStep;
+                auto stop_angle = mMaxAngle - ( qMax( zone.y(), mMin )  - mMin ) * step / mStep;
 
                 painter.setPen( Qt::NoPen );
                 painter.setBrush( color );

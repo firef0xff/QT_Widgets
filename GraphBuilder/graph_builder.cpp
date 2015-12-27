@@ -3,12 +3,16 @@
 
 namespace ff0x
 {
-
-GraphBuilder::GraphBuilder(int width, int height, Mode mode, QFont font ):
-    mMode( mode ),
+BasicGraphBuilder::BasicGraphBuilder( int width, int height, QFont font ):
     mWidth( width ),
     mHeight( height ),
     mFont( font )
+{}
+
+
+GraphBuilder::GraphBuilder(int width, int height, Mode mode, QFont font ):
+    BasicGraphBuilder( width, height, font ),
+    mMode( mode )
 {}
 
 QPixmap GraphBuilder::Draw(const GraphDataLine &data,
@@ -233,5 +237,203 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
 
     return picture;
 }
+
+
+NoAxisGraphBuilder::NoAxisGraphBuilder( int width, int height, QFont font ):
+    BasicGraphBuilder( width, height, font)
+{
+}
+
+
+QPixmap NoAxisGraphBuilder::Draw(GraphDataLine const& data,
+              QPointF x_range,
+              QPointF y_range,
+              qreal x_step,
+              qreal y_step,
+              QString x_label,
+              QString y_label,
+              bool draw_greed ) const
+{
+    QPixmap picture( mWidth, mHeight );
+    QPainter painter( &picture );
+    painter.setFont( mFont );
+    QFontMetrics metrix( painter.font() );
+//    painter.setRenderHint(QPainter::Antialiasing);
+
+    //габариты зоны легенды
+    int legend_y_ofset = 5;
+    int legend_start_point = legend_y_ofset;
+
+    // нарисовать рамку графика
+    QRect border( 0, 0, mWidth - 1, mHeight - 1 );
+    painter.fillRect( border, Qt::white );
+    painter.drawRect( border );
+
+    // нарисовать легенду
+    foreach (Line const& line, data)
+    {
+        int l_width = metrix.width(line.second.mName);
+        QRect t( mWidth/100*25, legend_start_point, l_width , metrix.height() );
+
+        painter.setPen( Qt::black );
+        painter.drawText( t, line.second.mName );
+
+        legend_start_point += metrix.height();
+        painter.setPen( line.second.mColor );
+
+        painter.drawLine( mWidth/100*5, t.center().y(), mWidth/100*20, t.center().y() );
+    }
+
+
+    // переместить рисовальщик в начало изображения
+    int legend_height = legend_start_point + legend_y_ofset;
+    QPoint graph_start_point ( 0, legend_height );
+    painter.setPen( Qt::black );
+    painter.setPen( Qt::SolidLine );
+    painter.translate ( graph_start_point );
+
+    //вычислить количество шагов от 0 до минимального и максимального значения
+    if ( !x_step || !y_step )
+        return picture;
+
+    int top_x_steps = ceil(x_range.x()/x_step) + 1;
+    int top_y_steps = ceil(y_range.x()/y_step) + 1;
+    int bottom_x_steps = ceil(x_range.y()/x_step) - 1;
+    int bottom_y_steps = ceil(y_range.y()/y_step) - 1;
+
+    QPointF out_x_range( top_x_steps * x_step, bottom_x_steps * x_step );
+    QPointF out_y_range( top_y_steps * y_step, bottom_y_steps * y_step );
+
+    //габариты подписей по осям x и y
+    int y_marks_width = metrix.width("12345") * 2;
+    int x_marks_height = metrix.height() * 2;
+
+    //габариты зоны графика
+    int gr_width = mWidth - 2 - y_marks_width - 10;
+    int gr_heigth = mHeight - 2 - legend_height - x_marks_height;
+
+
+    //нарисовать зону графика
+    //|_
+    {
+        painter.save();
+        painter.setPen( Qt::black );
+        painter.setPen( Qt::SolidLine );
+        painter.drawLine( y_marks_width, gr_heigth, y_marks_width + gr_width, gr_heigth); // _
+        painter.drawLine( y_marks_width, 0, y_marks_width, gr_heigth); // |
+        painter.restore();
+    }
+
+    //нарисовать риски/сетку
+    {
+        painter.save();
+        painter.setPen( Qt::lightGray );
+        painter.setPen( draw_greed ? Qt::DotLine : Qt::SolidLine );
+
+        qreal dash_lehgth = std::min( gr_width, gr_heigth )/100;
+
+        // x
+        {
+            qreal st_y = 0;
+            qreal sp_y = 0;
+            if ( !draw_greed )
+            {
+                sp_y = gr_heigth + dash_lehgth;
+                st_y = gr_heigth -dash_lehgth;
+            }
+            else
+            {
+                st_y = 0;
+                sp_y = gr_heigth;
+            }
+
+            for ( qreal pos = out_x_range.y(); pos <= out_x_range.x(); pos += x_step  )
+            {
+                QPointF start( y_marks_width + TranclateToXAxis( pos, out_x_range, gr_width ), st_y ), stop( start.x(), sp_y );
+                painter.drawLine( start, stop );
+                QString t = QString::number(pos);
+                painter.drawText( stop.x() - metrix.width( t )/2 , gr_heigth + dash_lehgth + metrix.height(), t );
+
+            }
+        }
+
+        // y
+        {
+            qreal st_x = 0;
+            qreal sp_x = 0;
+            if ( !draw_greed )
+            {
+                sp_x = y_marks_width + dash_lehgth;
+                st_x = y_marks_width - dash_lehgth;
+            }
+            else
+            {
+                st_x = y_marks_width;
+                sp_x = y_marks_width + gr_width;
+            }
+
+            for ( qreal pos = out_y_range.y(); pos <= out_y_range.x(); pos += y_step  )
+            {
+                QPointF start( st_x, gr_heigth - TranclateToYAxis( pos, out_y_range, gr_width ) ), stop( sp_x, start.y() );
+                painter.drawLine( start, stop );
+                QString t = QString::number(pos);
+                painter.drawText( y_marks_width - dash_lehgth - metrix.width( t ), start.y() + metrix.height()/4 , t );
+
+            }
+        }
+
+        // написать ед изм если есть
+
+        painter.drawText( y_marks_width + gr_width - metrix.width( x_label ), gr_heigth - 4, x_label );
+        painter.drawText( y_marks_width + 4 , metrix.height(), y_label );
+        painter.restore();
+    }
+
+    //нарисовать точки
+    foreach (Line const& line, data)
+    {
+        painter.setPen( line.second.mColor );
+        QPointF const* prevPoint = nullptr;
+        foreach (QPointF const& p, line.first)
+        {
+            if ( !prevPoint )
+                prevPoint = &p;
+
+            QPointF start = *prevPoint;
+            start.setX( y_marks_width + TranclateToXAxis( start.x(), out_x_range, gr_width ) );
+            start.setY( gr_heigth - TranclateToYAxis( start.y(), out_y_range, gr_width ) );
+            if ( prevPoint != &p )
+            {
+                QPointF stop = p;
+                stop.setX( y_marks_width + TranclateToXAxis( stop.x(), out_x_range, gr_width ) );
+                stop.setY( gr_heigth - TranclateToYAxis( stop.y(), out_y_range, gr_width ) );
+
+                painter.drawLine( start, stop );
+            }
+            else if ( data.size() == 1 )
+            {
+                painter.drawPoint( start );
+            }
+
+            prevPoint = &p;
+        }
+    }
+    return picture;
+}
+
+qreal NoAxisGraphBuilder::TranclateToXAxis( qreal value, QPointF x_range, qreal garph_range ) const
+{
+    qreal data_range = x_range.x() - x_range.y();
+    qreal value_ofset = value - x_range.y();
+    return value_ofset * garph_range / data_range;
+}
+qreal NoAxisGraphBuilder::TranclateToYAxis( qreal value, QPointF y_range, qreal garph_range ) const
+{
+    return TranclateToXAxis( value, y_range, garph_range );
+}
+
+Log10GraphBuilder::Log10GraphBuilder( int width, int height, QFont font ):
+    NoAxisGraphBuilder( width, height, font )
+{}
 
 }//namespace ff0x

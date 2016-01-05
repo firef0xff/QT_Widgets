@@ -298,8 +298,8 @@ QPixmap NoAxisGraphBuilder::Draw(GraphDataLine const& data,
 
     int top_x_steps = ceil(x_range.x()/x_step) + 1;
     int top_y_steps = ceil(y_range.x()/y_step) + 1;
-    int bottom_x_steps = ceil(x_range.y()/x_step) - 1;
-    int bottom_y_steps = ceil(y_range.y()/y_step) - 1;
+    int bottom_x_steps = floor(x_range.y()/x_step) - 1;
+    int bottom_y_steps = floor(y_range.y()/y_step) - 1;
 
     QPointF out_x_range( top_x_steps * x_step, bottom_x_steps * x_step );
     QPointF out_y_range( top_y_steps * y_step, bottom_y_steps * y_step );
@@ -351,7 +351,7 @@ QPixmap NoAxisGraphBuilder::Draw(GraphDataLine const& data,
             {
                 QPointF start( y_marks_width + TranclateToXAxis( pos, out_x_range, gr_width ), st_y ), stop( start.x(), sp_y );
                 painter.drawLine( start, stop );
-                QString t = QString::number(pos);
+                QString t = QString::number( round( pos * 1000 )/1000 );
                 painter.drawText( stop.x() - metrix.width( t )/2 , gr_heigth + dash_lehgth + metrix.height(), t );
 
             }
@@ -376,7 +376,7 @@ QPixmap NoAxisGraphBuilder::Draw(GraphDataLine const& data,
             {
                 QPointF start( st_x, gr_heigth - TranclateToYAxis( pos, out_y_range, gr_width ) ), stop( sp_x, start.y() );
                 painter.drawLine( start, stop );
-                QString t = QString::number(pos);
+                QString t = QString::number( round( pos * 1000 )/1000 );
                 painter.drawText( y_marks_width - dash_lehgth - metrix.width( t ), start.y() + metrix.height()/4 , t );
 
             }

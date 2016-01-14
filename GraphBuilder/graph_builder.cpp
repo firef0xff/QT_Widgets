@@ -440,6 +440,11 @@ Log10GraphBuilder::Log10GraphBuilder( int width, int height, QFont font ):
 void DataLength( QPointF const& range, QPointF &out_range, double &out_step )
 {
     double range_len = range.x() - range.y();
+    if ( range_len <= 0.001 )
+    {
+        out_step = 0;
+        return;
+    }
 
     bool set = false;
     for ( double st = 0.01, prev_st = st/10.0; !set; prev_st = st, st *= 10 )

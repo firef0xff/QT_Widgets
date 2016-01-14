@@ -436,4 +436,36 @@ Log10GraphBuilder::Log10GraphBuilder( int width, int height, QFont font ):
     NoAxisGraphBuilder( width, height, font )
 {}
 
+
+void DataLength( QPointF const& range, QPointF &out_range, double &out_step )
+{
+    double range_len = range.x() - range.y();
+
+    bool set = false;
+    for ( double st = 0.01, prev_st = st/10.0; !set; prev_st = st, st *= 10 )
+    {
+        if ( range_len < st )
+        {
+            out_step = prev_st;
+            set = true;
+        }
+        else if ( range_len < 5 * st )
+        {
+            out_step = 5 * prev_st;
+            set = true;
+        }
+    }
+
+    out_range.setX( ceil( range.x() / out_step ) * out_step );
+    out_range.setY( floor( range.y() / out_step ) * out_step );
+}
+
+void DataLength( QPointF const& range1, QPointF const& range2, QPointF &out_range, double &out_step )
+{
+    QPointF range;
+    range.setX( std::max( range1.x(), range2.x() ) );
+    range.setY( std::min( range1.y(), range2.y() ) );
+    DataLength( range, out_range, out_step );
+}
+
 }//namespace ff0x

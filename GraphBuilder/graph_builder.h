@@ -81,4 +81,8 @@ public:
     Log10GraphBuilder( int width, int height, QFont font = QFont() );
 };
 
+
+void DataLength( QPointF const& range, QPointF &out_range, double &out_step );
+void DataLength( QPointF const& range1, QPointF const& range2, QPointF &out_range, double &out_step );
+
 }//namespace ff0x

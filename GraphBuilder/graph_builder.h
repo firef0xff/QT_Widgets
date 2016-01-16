@@ -83,6 +83,25 @@ public:
 
 
 void DataLength( QPointF const& range, QPointF &out_range, double &out_step );
-void DataLength( QPointF const& range1, QPointF const& range2, QPointF &out_range, double &out_step );
+
+void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2, QPointF &out_range, double &out_step );
+
+void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2,
+                                        QPointF const& range3, bool use_r3, QPointF &out_range, double &out_step );
+
+void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2,
+                                        QPointF const& range3, bool use_r3,
+                                        QPointF const& range4, bool use_r4, QPointF &out_range, double &out_step );
+
+void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2,
+                                        QPointF const& range3, bool use_r3,
+                                        QPointF const& range4, bool use_r4,
+                                        QPointF const& range5, bool use_r5, QPointF &out_range, double &out_step );
+
+void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2,
+                                        QPointF const& range3, bool use_r3,
+                                        QPointF const& range4, bool use_r4,
+                                        QPointF const& range5, bool use_r5,
+                                        QPointF const& range6, bool use_r6, QPointF &out_range, double &out_step );
 
 }//namespace ff0x

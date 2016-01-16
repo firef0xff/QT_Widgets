@@ -170,17 +170,17 @@ void RoundDial::paintEvent( QPaintEvent* /*e */)
         auto width = metrix.width( text );
         auto max_height = hord_height;
 
-        painter.drawText( -width/2, max_height - 3, text );
+        painter.drawText( -width/2, max_height - 3 - metrix.height()/2, text );
     }
 
-    //пишем текущее значение
-    {
-        QString text = "Ц.д. " + QString::number( mStep, 'g', 6 ) + " " + mUnits;
-        auto width = metrix.width( text );
-        auto max_height = hord_height;
+//    //пишем текущее значение
+//    {
+//        QString text = "Ц.д. " + QString::number( mStep, 'g', 6 ) + " " + mUnits;
+//        auto width = metrix.width( text );
+//        auto max_height = hord_height;
 
-        painter.drawText( -width/2, max_height - 3 - metrix.height() - 3, text );
-    }
+//        painter.drawText( -width/2, max_height - 3 - metrix.height() - 3, text );
+//    }
 
 }
 

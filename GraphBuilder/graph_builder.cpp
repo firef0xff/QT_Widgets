@@ -454,6 +454,11 @@ void DataLength( QPointF const& range, QPointF &out_range, double &out_step )
             out_step = prev_st;
             set = true;
         }
+        else if ( range_len < 2.5 * st )
+        {
+            out_step = 2.5 * prev_st;
+            set = true;
+        }
         else if ( range_len < 5 * st )
         {
             out_step = 5 * prev_st;

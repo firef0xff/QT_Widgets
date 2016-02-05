@@ -374,7 +374,7 @@ QPixmap NoAxisGraphBuilder::Draw(GraphDataLine const& data,
 
             for ( qreal pos = out_y_range.y(); pos <= out_y_range.x(); pos += y_step  )
             {
-                QPointF start( st_x, gr_heigth - TranclateToYAxis( pos, out_y_range, gr_width ) ), stop( sp_x, start.y() );
+                QPointF start( st_x, gr_heigth - TranclateToYAxis( pos, out_y_range, gr_heigth ) ), stop( sp_x, start.y() );
                 painter.drawLine( start, stop );
                 QString t = QString::number( round( pos * 1000 )/1000 );
                 painter.drawText( y_marks_width - dash_lehgth - metrix.width( t ), start.y() + metrix.height()/4 , t );
@@ -401,12 +401,12 @@ QPixmap NoAxisGraphBuilder::Draw(GraphDataLine const& data,
 
             QPointF start = *prevPoint;
             start.setX( y_marks_width + TranclateToXAxis( start.x(), out_x_range, gr_width ) );
-            start.setY( gr_heigth - TranclateToYAxis( start.y(), out_y_range, gr_width ) );
+            start.setY( gr_heigth - TranclateToYAxis( start.y(), out_y_range, gr_heigth ) );
             if ( prevPoint != &p )
             {
                 QPointF stop = p;
                 stop.setX( y_marks_width + TranclateToXAxis( stop.x(), out_x_range, gr_width ) );
-                stop.setY( gr_heigth - TranclateToYAxis( stop.y(), out_y_range, gr_width ) );
+                stop.setY( gr_heigth - TranclateToYAxis( stop.y(), out_y_range, gr_heigth ) );
 
                 painter.drawLine( start, stop );
             }
@@ -442,7 +442,9 @@ void DataLength( QPointF const& range, QPointF &out_range, double &out_step )
     double range_len = range.x() - range.y();
     if ( range_len <= 0.001 )
     {
-        out_step = 0;
+        out_range.setX( range.x() + 5 );
+        out_range.setY( range.y() - 5 );
+        out_step = 1;
         return;
     }
 
@@ -469,154 +471,19 @@ void DataLength( QPointF const& range, QPointF &out_range, double &out_step )
     out_range.setX( ceil( range.x() / out_step ) * out_step );
     out_range.setY( floor( range.y() / out_step ) * out_step );
 }
-
-void DataLength( QPointF const& range1, QPointF const& range2, QPointF &out_range, double &out_step )
+QPointF MergeRanges( QPointF const& range1, QPointF const& range2, bool use_r2 )
 {
-    QPointF range;
-    range.setX( std::max( range1.x(), range2.x() ) );
-    range.setY( std::min( range1.y(), range2.y() ) );
-    DataLength( range, out_range, out_step );
-}
-
-void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2, QPointF &out_range, double &out_step )
-{
-    QPointF test_range;
-
-    test_range.setX( range1.x() );
-    test_range.setY( range1.y() );
-
     if ( use_r2 )
     {
-        test_range.setX( std::max( range2.x(), test_range.x() ) );
-        test_range.setY( std::min( range2.y(), test_range.y() ) );
+        QPointF range;
+        range.setX( std::max( range1.x(), range2.x() ) );
+        range.setY( std::min( range1.y(), range2.y() ) );
+        return std::move( range );
     }
-    DataLength( test_range, out_range, out_step );
+    else
+    {
+        return range1;
+    }
 }
-
-void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2,
-                                        QPointF const& range3, bool use_r3, QPointF &out_range, double &out_step )
-{
-    QPointF test_range;
-
-    test_range.setX( range1.x() );
-    test_range.setY( range1.y() );
-
-    if ( use_r2 )
-    {
-        test_range.setX( std::max( range2.x(), test_range.x() ) );
-        test_range.setY( std::min( range2.y(), test_range.y() ) );
-    }
-    if ( use_r3 )
-    {
-        test_range.setX( std::max( range3.x(), test_range.x() ) );
-        test_range.setY( std::min( range3.y(), test_range.y() ) );
-    }
-
-    DataLength( test_range, out_range, out_step );
-}
-
-void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2,
-                                        QPointF const& range3, bool use_r3,
-                                        QPointF const& range4, bool use_r4, QPointF &out_range, double &out_step )
-{
-    QPointF test_range;
-
-    test_range.setX( range1.x() );
-    test_range.setY( range1.y() );
-
-    if ( use_r2 )
-    {
-        test_range.setX( std::max( range2.x(), test_range.x() ) );
-        test_range.setY( std::min( range2.y(), test_range.y() ) );
-    }
-    if ( use_r3 )
-    {
-        test_range.setX( std::max( range3.x(), test_range.x() ) );
-        test_range.setY( std::min( range3.y(), test_range.y() ) );
-    }
-    if ( use_r4 )
-    {
-        test_range.setX( std::max( range4.x(), test_range.x() ) );
-        test_range.setY( std::min( range4.y(), test_range.y() ) );
-    }
-
-    DataLength( test_range, out_range, out_step );
-}
-
-void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2,
-                                        QPointF const& range3, bool use_r3,
-                                        QPointF const& range4, bool use_r4,
-                                        QPointF const& range5, bool use_r5, QPointF &out_range, double &out_step )
-{
-    QPointF test_range;
-
-    test_range.setX( range1.x() );
-    test_range.setY( range1.y() );
-
-    if ( use_r2 )
-    {
-        test_range.setX( std::max( range2.x(), test_range.x() ) );
-        test_range.setY( std::min( range2.y(), test_range.y() ) );
-    }
-    if ( use_r3 )
-    {
-        test_range.setX( std::max( range3.x(), test_range.x() ) );
-        test_range.setY( std::min( range3.y(), test_range.y() ) );
-    }
-    if ( use_r4 )
-    {
-        test_range.setX( std::max( range4.x(), test_range.x() ) );
-        test_range.setY( std::min( range4.y(), test_range.y() ) );
-    }
-    if ( use_r5 )
-    {
-        test_range.setX( std::max( range5.x(), test_range.x() ) );
-        test_range.setY( std::min( range5.y(), test_range.y() ) );
-    }
-
-    DataLength( test_range, out_range, out_step );
-}
-
-void DataLength( QPointF const& range1, QPointF const& range2, bool use_r2,
-                                        QPointF const& range3, bool use_r3,
-                                        QPointF const& range4, bool use_r4,
-                                        QPointF const& range5, bool use_r5,
-                                        QPointF const& range6, bool use_r6, QPointF &out_range, double &out_step )
-{
-    QPointF test_range;
-
-    test_range.setX( range1.x() );
-    test_range.setY( range1.y() );
-
-    if ( use_r2 )
-    {
-        test_range.setX( std::max( range2.x(), test_range.x() ) );
-        test_range.setY( std::min( range2.y(), test_range.y() ) );
-    }
-    if ( use_r3 )
-    {
-        test_range.setX( std::max( range3.x(), test_range.x() ) );
-        test_range.setY( std::min( range3.y(), test_range.y() ) );
-    }
-    if ( use_r4 )
-    {
-        test_range.setX( std::max( range4.x(), test_range.x() ) );
-        test_range.setY( std::min( range4.y(), test_range.y() ) );
-    }
-    if ( use_r5 )
-    {
-        test_range.setX( std::max( range5.x(), test_range.x() ) );
-        test_range.setY( std::min( range5.y(), test_range.y() ) );
-    }
-    if ( use_r6 )
-    {
-        test_range.setX( std::max( range6.x(), test_range.x() ) );
-        test_range.setY( std::min( range6.y(), test_range.y() ) );
-    }
-
-    DataLength( test_range, out_range, out_step );
-
-}
-
 
 }//namespace ff0x

@@ -79,8 +79,20 @@ class Log10GraphBuilder : public NoAxisGraphBuilder
 {
 public:
     Log10GraphBuilder( int width, int height, QFont font = QFont() );
-};
 
+    QPixmap Draw(GraphDataLine const& data,
+                  QPointF x_range,
+                  QPointF y_range,
+                  qreal y_step,
+                  QString x_label,
+                  QString y_label,
+                  bool draw_greed = false ) const;
+
+protected:
+    virtual qreal TranclateToXAxis( qreal value, QPointF x_range, qreal garph_range ) const;
+    virtual qreal TranclateToYAxis( qreal value, QPointF y_range, qreal garph_range ) const;
+
+};
 
 void DataLength( QPointF const& range, QPointF &out_range, double &out_step );
 

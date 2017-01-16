@@ -147,23 +147,6 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
             }
             // положительный диапазон
             {
-                qreal pos = 0 + y_step;
-                QPointF start( st_x, pos * y_skale ), stop( sp_x, start.y() );
-                while ( start.y() < y_dist )
-                {
-                    painter.drawLine( start, stop );
-
-                    QString t = QString::number( -1 * pos);
-                    painter.drawText( -dash_lehgth - metrix.width( t ), start.y() + metrix.height()/4 , t );
-
-                    pos += y_step;
-                    start.setY( pos * y_skale );
-                    stop.setY( pos * y_skale );
-                }
-            }
-            // отрицательный диапазон
-            if ( mMode == TopHalf || mMode == PlusPlus )
-            {
                 qreal pos = 0 - y_step;
                 QPointF start( st_x, pos * y_skale ), stop( sp_x, start.y() );
                 while ( start.y() > -y_dist )
@@ -174,6 +157,23 @@ QPixmap GraphBuilder::Draw(const GraphDataLine &data,
                     painter.drawText( -dash_lehgth - metrix.width( t ), start.y() + metrix.height()/4, t );
 
                     pos -= y_step;
+                    start.setY( pos * y_skale );
+                    stop.setY( pos * y_skale );
+                }
+            }
+            // отрицательный диапазон
+            if ( !(mMode == TopHalf || mMode == PlusPlus) )
+            {
+                qreal pos = 0 + y_step;
+                QPointF start( st_x, pos * y_skale ), stop( sp_x, start.y() );
+                while ( start.y() < y_dist )
+                {
+                    painter.drawLine( start, stop );
+
+                    QString t = QString::number( -1 * pos);
+                    painter.drawText( -dash_lehgth - metrix.width( t ), start.y() + metrix.height()/4 , t );
+
+                    pos += y_step;
                     start.setY( pos * y_skale );
                     stop.setY( pos * y_skale );
                 }

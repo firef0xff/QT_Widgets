@@ -61,6 +61,7 @@ class NoAxisGraphBuilder :public BasicGraphBuilder
 public:
     NoAxisGraphBuilder( int width, int height, QFont font = QFont() );
 
+    void DrawBorderCeil( bool );
 
     QPixmap Draw(GraphDataLine const& data,
                   QPointF x_range,
@@ -73,6 +74,7 @@ public:
 protected:
     virtual qreal TranclateToXAxis( qreal value, QPointF x_range, qreal garph_range ) const;
     virtual qreal TranclateToYAxis( qreal value, QPointF y_range, qreal garph_range ) const;
+    bool mDrawBorderCeil = true;
 };
 
 class Log10GraphBuilder : public NoAxisGraphBuilder

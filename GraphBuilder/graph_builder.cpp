@@ -296,10 +296,13 @@ QPixmap NoAxisGraphBuilder::Draw(GraphDataLine const& data,
     if ( !x_step || !y_step )
         return picture;
 
-    int top_x_steps = ceil(x_range.x()/x_step) + 1;
-    int top_y_steps = ceil(y_range.x()/y_step) + 1;
-    int bottom_x_steps = floor(x_range.y()/x_step) - 1;
-    int bottom_y_steps = floor(y_range.y()/y_step) - 1;
+    int c = 0;
+    if ( mDrawBorderCeil )
+       c = 1;
+    int top_x_steps = ceil(x_range.x()/x_step) + c;
+    int top_y_steps = ceil(y_range.x()/y_step) + c;
+    int bottom_x_steps = floor(x_range.y()/x_step) - c;
+    int bottom_y_steps = floor(y_range.y()/y_step) - c;
 
     QPointF out_x_range( top_x_steps * x_step, bottom_x_steps * x_step );
     QPointF out_y_range( top_y_steps * y_step, bottom_y_steps * y_step );
@@ -430,6 +433,11 @@ qreal NoAxisGraphBuilder::TranclateToXAxis( qreal value, QPointF x_range, qreal 
 qreal NoAxisGraphBuilder::TranclateToYAxis( qreal value, QPointF y_range, qreal garph_range ) const
 {
     return TranclateToXAxis( value, y_range, garph_range );
+}
+
+void NoAxisGraphBuilder::DrawBorderCeil( bool v )
+{
+   mDrawBorderCeil = v;
 }
 
 Log10GraphBuilder::Log10GraphBuilder( int width, int height, QFont font ):

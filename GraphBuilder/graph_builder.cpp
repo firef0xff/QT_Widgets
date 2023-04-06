@@ -563,7 +563,13 @@ QPixmap NoAxisGraphBuilder::Draw() const
     //нарисовать точки
     foreach (Line const& line, mData)
     {
-        painter.setPen( line.second.mColor );
+        painter.save();
+        auto pen = painter.pen();
+        pen.setColor( line.second.mColor );
+        pen.setStyle( Qt::SolidLine );
+        pen.setWidth( 2 );
+        painter.setPen( pen );
+
         QPointF const* prevPoint = nullptr;
         foreach (QPointF const& p, line.first)
         {
@@ -588,6 +594,7 @@ QPixmap NoAxisGraphBuilder::Draw() const
 
             prevPoint = &p;
         }
+        painter.restore();
     }
     return picture;
 }

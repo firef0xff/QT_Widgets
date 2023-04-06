@@ -48,8 +48,6 @@ Plotter::Plotter( std::unique_ptr<ff0x::BasicGraphBuilder> builder,
 {
     ui->setupUi(this);
     mBuilder->SetDrawGreed( true );
-
-    OnDataUpdated( MakeGraph() );
 }
 
 Plotter::~Plotter()
